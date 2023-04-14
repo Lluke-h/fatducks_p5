@@ -24,6 +24,10 @@ let y;
 let xspeed;
 let yspeed;
 
+let beatScaleFactor = 1;
+let beatScaleAdd = 0;
+let beatScaleFactorDecay = 0.7;
+
 let song, analyzer;
 
 let mic, fft;
@@ -244,6 +248,8 @@ function drawFFT() {
 }
 
 function detectBeat(level) {
+  beatScaleAdd *= beatScaleFactorDecay;
+  beatScaleFactor = 1 + beatScaleAdd;
   if (level > beatCutoff && level > beatThreshold) {
     onBeat();
     beatCutoff = level * 1.2;
@@ -260,7 +266,8 @@ function detectBeat(level) {
 
 function onBeat() {
   console.log("beat!");
-  pickColor();
+  beatScaleAdd += 0.1;
+  // pickColor();
 }
 
 function drawWave() {
@@ -274,19 +281,22 @@ function drawWave() {
 
   for (let t = -1; t <= 1; t += 2) {
     beginShape();
+    let HEIGHT = (height / 2.5) * beatScaleFactor;
     let wave = fft.waveform();
+    curveVertex(HEIGHT * sin(0) * t, HEIGHT * cos(0));
     for (let i = 0; i < 181; i += 1) {
       let index = floor(map(i, 0, 180, 0, wave.length - 1));
-      let HEIGHT = height / 2.5;
-      let r = map(wave[index], -1, 1, HEIGHT - 50, HEIGHT + 50);
+
+      let r = map(wave[index], -1, 1, HEIGHT - 50, HEIGHT + 100);
       let x = r * sin(i) * t;
       let y = r * cos(i);
-      vertex(x, y);
+      curveVertex(x, y);
     }
+    curveVertex(HEIGHT * sin(180) * t, HEIGHT * cos(180));
     endShape();
   }
 
-  strokeWeight(1);
+  strokeWeight(0.5);
   noStroke();
   translate(-width / 2 - offset, -height / 2);
   angleMode(RADIANS);
