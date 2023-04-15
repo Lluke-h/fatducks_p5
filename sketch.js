@@ -47,30 +47,31 @@ function setup() {
   // SETUP TIMERS ! -----------------
   //
   // Toutes les INTERVAL_DVD_MINUTES minutes, afficher le DVD pendant 1 minute
-  let INTERVAL_DVD_MINUTES = 1;
+  let INTERVAL_DVD_MINUTES = 5;
+  let DVD_DURATION = 1;
   setInterval(() => {
     SHOW_DVD = !SHOW_DVD;
     // show DVD for 1 minute
     setTimeout(() => {
       SHOW_DVD = !SHOW_DVD;
-    }, 0.08 * 60 * 1000);
+    }, DVD_DURATION * 60 * 1000);
   }, INTERVAL_DVD_MINUTES * 60 * 1000);
 
   // Toutes
-  let INTERVAL_GIF_MINUTES = 0.05;
+  let INTERVAL_GIF_SECONDS = 30;
+  let GIF_DURATION_SECONDS = 10;
   setInterval(() => {
     SHOW_GIF = !SHOW_GIF;
-    // show DVD for 1 minute
     setTimeout(() => {
       SHOW_GIF = !SHOW_GIF;
-    }, 0.25 * 60 * 1000);
-  }, INTERVAL_GIF_MINUTES * 60 * 1000);
+    }, GIF_DURATION_SECONDS * 1000);
+  }, INTERVAL_GIF_SECONDS * 1000);
 
   // ------------------------
 
-  let scale = 0.7;
+  let lScale = 0.7;
 
-  fd.resize(fd.width * scale, fd.height * scale);
+  fd.resize(fd.width * lScale, fd.height * lScale);
   // fd_gif.resize(fd_gif.width * 1.2, fd_gif.height * 0.8);
   createCanvas(windowWidth, windowHeight);
   x = random(width);
@@ -81,8 +82,7 @@ function setup() {
 
   //Analyzer
   // create a new Amplitude analyzer
-  analyzer = new p5.Amplitude();
-  analyzer.setInput(mic);
+
   mic = new p5.AudioIn();
   mic.start();
   fft = new p5.FFT();
@@ -90,7 +90,7 @@ function setup() {
 }
 // UPDATE
 function draw() {
-  var level = mic.getLevel(0.5);
+  var level = mic.getLevel();
   //Volume scale factor
   volumeScaleFactor = map(level, 0, 1, 1, 2);
   detectBeat(level);
@@ -100,8 +100,8 @@ function draw() {
   if (SHOW_DVD) {
     drawDVD();
   } else {
-    drawLogoCenter(large_fd);
     drawWave();
+    drawLogoCenter(large_fd);
     drawFFT();
   }
 }
@@ -225,7 +225,6 @@ function pickColor() {
 
 function drawFFT() {
   // Get the average (root mean square) amplitude
-  let rms = analyzer.getLevel();
   // fill(250, 196, 211);
   // fill(r, g, b);
   stroke(255, 255, 255, 155);
@@ -265,8 +264,7 @@ function detectBeat(level) {
 }
 
 function onBeat() {
-  console.log("beat!");
-  beatScaleAdd += 0.1;
+  beatScaleAdd += 0.3;
   // pickColor();
 }
 
@@ -284,7 +282,7 @@ function drawWave() {
     let HEIGHT = (height / 2.5) * beatScaleFactor;
     let wave = fft.waveform();
     curveVertex(HEIGHT * sin(0) * t, HEIGHT * cos(0));
-    for (let i = 0; i < 181; i += 1) {
+    for (let i = 0; i < 181; i += 3) {
       let index = floor(map(i, 0, 180, 0, wave.length - 1));
 
       let r = map(wave[index], -1, 1, HEIGHT - 50, HEIGHT + 100);
