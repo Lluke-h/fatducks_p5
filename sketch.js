@@ -102,7 +102,7 @@ function draw() {
   } else {
     drawWave();
     drawLogoCenter(large_fd);
-    drawFFT();
+    //drawFFT();
   }
 }
 
